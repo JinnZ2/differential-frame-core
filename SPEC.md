@@ -24,17 +24,28 @@ Aggregation produces a FrameField, not a pass/fail.
 
 ## Confidence anchors
 
-    1.00  reserved — never assigned at runtime
-    0.95  physical law, verified in this regime
-    0.85  well-established mechanism
-    0.70  good empirical support
-    0.50  ambiguous — structure unclear
-    0.30  weak signal, could be artifact
-    0.15  narrative drift suspected
-    0.00  definitionally out-of-frame
+    → 1.00  asymptotic — evidence accumulating without limit,
+            never arrives
+    0.97    every test we have ever run passes, across every
+            regime we have ever observed — but we have not
+            observed every regime
+    0.95    physical law, verified in this regime, edge cases
+            known
+    0.85    well-established mechanism
+    0.70    good empirical support
+    0.50    ambiguous — structure unclear
+    0.30    weak signal, could be artifact
+    0.15    narrative drift suspected
+    0.00    definitionally out-of-frame
 
-The maximum any real claim earns is ~0.97.
-1.00 is reserved because regime boundaries always exist.
+1.00 is not reserved — it is **structurally unreachable**. The
+maximum posterior the frame is willing to assign is
+`asymptotic_ceiling(n_evidence) = 1 - 0.15/n`, which approaches
+1.0 as evidence accumulates but never reaches it.
+
+This makes the differential frame an OPEN probability system:
+new regimes can always arrive and revise high-confidence
+claims downward. Closed systems verify; open systems receive.
 
 ## Confidence bands (for human readers)
 

@@ -44,6 +44,22 @@ def arithmetic_mean(scores: Dict[str, float]) -> float:
     return sum(vals) / len(vals) if vals else 0.0
 
 
+def asymptotic_ceiling(n_evidence: int) -> float:
+    """
+    Maximum posterior the frame is willing to assign given
+    `n_evidence` independent pieces of evidence.
+
+    The ceiling rises toward 1.0 with more evidence but never
+    reaches it: the frame is an OPEN probability system, not
+    a closed one. There is always a regime we have not yet
+    observed, and 1.0 would deny that.
+
+    Anchor: n=5 → 0.97 (matches the original hard-coded cap).
+    """
+    n = max(n_evidence, 1)
+    return 1.0 - 0.15 / n
+
+
 def bayesian_update(
     scores: Dict[str, float],
     prior: float = 0.5,
@@ -57,6 +73,11 @@ def bayesian_update(
     The five rules are correlated: scope, bounds, and closure
     tend to fail together (narrative-mode claims usually lack
     all three). correlation=0.6 reflects this empirically.
+
+    The posterior is capped at `asymptotic_ceiling(n)` rather
+    than a fixed value — so the frame's maximum confidence is
+    a function of evidence accumulated, and 1.0 remains
+    structurally unreachable.
 
     Use when: you want a posterior probability over frame-
     validity that honestly accounts for the rules being
@@ -82,4 +103,7 @@ def bayesian_update(
         odds_post = odds_prior * lr
         posterior = odds_post / (1.0 + odds_post)
 
-    return max(0.0, min(0.97, posterior))   # never claim certainty
+    # asymptotic ceiling: approaches 1.0 with evidence but
+    # never arrives. the unknown unknown is preserved.
+    ceiling = asymptotic_ceiling(len(vals))
+    return max(0.0, min(ceiling, posterior))
