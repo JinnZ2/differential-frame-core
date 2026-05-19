@@ -7,13 +7,26 @@ import re
 from typing import Optional
 
 
-# tokens that signal narrative-mode (out-of-frame)
-NARRATIVE_TOKENS = (
-    'is',  'are', 'was', 'were',
+# tokens that signal narrative-mode (out-of-frame).
+# split by signal strength: heavy tokens assert permanence,
+# closure, or universality (genuine frame violations); light
+# tokens are copula verbs that appear constantly in
+# rate-honest scoped discourse too, so they carry only
+# fractional weight.
+NARRATIVE_TOKENS_HEAVY = (
     'essence', 'identity', 'nature of',
     'fundamentally', 'inherently', 'simply',
     'always', 'never', 'everyone', 'no one',
 )
+
+NARRATIVE_TOKENS_LIGHT = (
+    'is', 'are', 'was', 'were',
+)
+
+# preserved for callers that imported the original flat tuple
+NARRATIVE_TOKENS = NARRATIVE_TOKENS_HEAVY + NARRATIVE_TOKENS_LIGHT
+
+LIGHT_TOKEN_WEIGHT = 0.25
 
 # tokens that signal rate-mode (in-frame)
 RATE_TOKENS = (
@@ -39,10 +52,11 @@ def has_scope_declaration(text: str) -> bool:
 
 def has_narrative_drift(text: str) -> bool:
     t = text.lower()
-    # crude but useful: more narrative tokens than rate tokens
-    nar = sum(1 for tok in NARRATIVE_TOKENS if tok in t)
-    rat = sum(1 for tok in RATE_TOKENS if tok in t)
-    return nar > rat and rat == 0
+    heavy_count = sum(1 for tok in NARRATIVE_TOKENS_HEAVY if tok in t)
+    light_count = sum(1 for tok in NARRATIVE_TOKENS_LIGHT if tok in t)
+    rate_count  = sum(1 for tok in RATE_TOKENS if tok in t)
+    drift_score = heavy_count + (light_count * LIGHT_TOKEN_WEIGHT)
+    return drift_score > rate_count and rate_count == 0
 
 
 def quick_audit(text: str) -> dict:
